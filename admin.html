@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>پنل مدیریت صدای مزرج</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+ box-sizing:border-box;
+}
+
+body{
+ margin:0;
+ font-family:Tahoma,Arial,sans-serif;
+ background:#f3f6fb;
+ color:#172033;
+}
+
+button,input,textarea{
+ font-family:inherit;
+}
+
+.login{
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+}
+
+.login-box{
+ width:100%;
+ max-width:420px;
+ background:white;
+ padding:30px;
+ border-radius:25px;
+ box-shadow:0 15px 50px #0001;
+}
+
+.logo{
+ width:70px;
+ height:70px;
+ border-radius:22px;
+ background:linear-gradient(135deg,#229ed9,#1769aa);
+ color:white;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:32px;
+ margin:auto;
+}
+
+h1{
+ text-align:center;
+ margin:18px 0 8px;
+}
+
+.sub{
+ text-align:center;
+ color:#777;
+ margin-bottom:25px;
+}
+
+input,textarea{
+ width:100%;
+ padding:14px;
+ border:1px solid #ddd;
+ border-radius:14px;
+ outline:none;
+ margin-bottom:12px;
+ font-size:14px;
+}
+
+input:focus,textarea:focus{
+ border-color:#229ed9;
+}
+
+.btn{
+ border:0;
+ border-radius:14px;
+ padding:13px 18px;
+ cursor:pointer;
+ font-weight:bold;
+}
+
+.primary{
+ width:100%;
+ background:#229ed9;
+ color:white;
+}
+
+.danger{
+ background:#ef4444;
+ color:white;
+}
+
+.gray{
+ background:#eef2f7;
+ color:#333;
+}
+
+.hidden{
+ display:none!important;
+}
+
+header{
+ background:linear-gradient(135deg,#229ed9,#1769aa);
+ color:white;
+ padding:18px;
+ position:sticky;
+ top:0;
+ z-index:10;
+ box-shadow:0 5px 20px #0002;
+}
+
+.header-inner{
+ max-width:1100px;
+ margin:auto;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:15px;
+}
+
+.brand{
+ font-size:20px;
+ font-weight:bold;
+}
+
+.logout{
+ background:#ffffff22;
+ color:white;
+ border:1px solid #ffffff44;
+}
+
+.container{
+ max-width:1100px;
+ margin:auto;
+ padding:20px;
+}
+
+.stats{
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:12px;
+ margin-bottom:20px;
+}
+
+.stat{
+ background:white;
+ border-radius:18px;
+ padding:20px;
+ box-shadow:0 5px 20px #00000008;
+}
+
+.stat-title{
+ color:#777;
+ font-size:13px;
+}
+
+.stat-value{
+ font-size:27px;
+ font-weight:bold;
+ margin-top:7px;
+}
+
+.tools{
+ background:white;
+ border-radius:18px;
+ padding:15px;
+ margin-bottom:20px;
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+}
+
+.tools input{
+ flex:1;
+ min-width:220px;
+ margin:0;
+}
+
+.problem{
+ background:white;
+ border-radius:20px;
+ margin-bottom:15px;
+ padding:18px;
+ box-shadow:0 5px 20px #00000008;
+}
+
+.problem-top{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ align-items:flex-start;
+}
+
+.problem-title{
+ font-size:18px;
+ font-weight:bold;
+}
+
+.date{
+ color:#888;
+ font-size:12px;
+ margin-top:5px;
+}
+
+.desc{
+ line-height:1.9;
+ color:#444;
+ margin:15px 0;
+ white-space:pre-wrap;
+}
+
+.problem img{
+ width:100%;
+ max-height:350px;
+ object-fit:cover;
+ border-radius:15px;
+ margin-bottom:15px;
+}
+
+.stats-row{
+ display:flex;
+ gap:15px;
+ flex-wrap:wrap;
+ color:#667085;
+ font-size:13px;
+ margin-bottom:15px;
+}
+
+.actions{
+ display:flex;
+ gap:8px;
+ flex-wrap:wrap;
+}
+
+.empty{
+ text-align:center;
+ background:white;
+ padding:40px;
+ border-radius:20px;
+ color:#777;
+}
+
+.modal{
+ position:fixed;
+ inset:0;
+ background:#0008;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ padding:20px;
+ z-index:100;
+}
+
+.modal-box{
+ width:100%;
+ max-width:550px;
+ background:white;
+ border-radius:22px;
+ padding:22px;
+}
+
+.modal-actions{
+ display:flex;
+ gap:10px;
+}
+
+@media(max-width:700px){
+ .stats{
+  grid-template-columns:repeat(2,1fr);
+ }
+
+ .header-inner{
+  align-items:flex-start;
+ }
+
+ .problem-top{
+  flex-direction:column;
+ }
+}
+
+@media(max-width:430px){
+ .stats{
+  grid-template-columns:1fr 1fr;
+ }
+
+ .stat{
+  padding:15px;
+ }
+
+ .stat-value{
+  font-size:22px;
+ }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<section id="loginPage" class="login">
+
+<div class="login-box">
+
+<div class="logo">م</div>
+
+<h1>پنل مدیریت</h1>
+
+<div class="sub">
+صدای مزرج
+</div>
+
+<input
+ id="email"
+ type="email"
+ placeholder="ایمیل مدیر"
+>
+
+<input
+ id="password"
+ type="password"
+ placeholder="رمز عبور"
+>
+
+<button
+ class="btn primary"
+ onclick="login()"
+>
+ورود به پنل
+</button>
+
+<p id="loginError"
+ style="color:#ef4444;text-align:center">
+</p>
+
+</div>
+
+</section>
+
+
+<!-- ADMIN -->
+
+<section id="adminPage" class="hidden">
+
+<header>
+
+<div class="header-inner">
+
+<div class="brand">
+🎙️ پنل مدیریت صدای مزرج
+</div>
+
+<button
+ class="btn logout"
+ onclick="logout()"
+>
+خروج
+</button>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat">
+<div class="stat-title">کل گزارش‌ها</div>
+<div id="totalProblems" class="stat-value">0</div>
+</div>
+
+<div class="stat">
+<div class="stat-title">بازدیدها</div>
+<div id="totalViews" class="stat-value">0</div>
+</div>
+
+<div class="stat">
+<div class="stat-title">لایک‌ها</div>
+<div id="totalLikes" class="stat-value">0</div>
+</div>
+
+<div class="stat">
+<div class="stat-title">حمایت‌ها</div>
+<div id="totalSupports" class="stat-value">0</div>
+</div>
+
+</div>
+
+
+<div class="tools">
+
+<input
+ id="search"
+ placeholder="🔎 جستجوی گزارش..."
+ oninput="renderProblems()"
+>
+
+<button
+ class="btn gray"
+ onclick="loadProblems()"
+>
+🔄 بروزرسانی
+</button>
+
+</div>
+
+
+<div id="problems"></div>
+
+</div>
+
+</section>
+
+
+<!-- EDIT MODAL -->
+
+<div id="modal" class="modal hidden">
+
+<div class="modal-box">
+
+<h2>ویرایش گزارش</h2>
+
+<input id="editTitle" placeholder="عنوان">
+
+<textarea
+ id="editDescription"
+ rows="7"
+ placeholder="توضیحات"
+></textarea>
+
+<div class="modal-actions">
+
+<button
+ class="btn primary"
+ onclick="saveEdit()"
+>
+ذخیره
+</button>
+
+<button
+ class="btn gray"
+ onclick="closeModal()"
+>
+لغو
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+"https://tsiexzpieogyezzpxtkw.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_ovUuFQIQcmFt7fxySl5iHA_mvCnm735";
+
+const db =
+supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+let problems = [];
+let editingId = null;
+
+
+/* =========================================
+   START
+========================================= */
+
+checkSession();
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+async function login(){
+
+ const email =
+ document.getElementById("email").value.trim();
+
+ const password =
+ document.getElementById("password").value;
+
+ const error =
+ document.getElementById("loginError");
+
+ error.textContent="";
+
+ if(!email || !password){
+
+  error.textContent =
+  "ایمیل و رمز عبور را وارد کنید.";
+
+  return;
+ }
+
+ const {data,error:loginError} =
+ await db.auth.signInWithPassword({
+  email,
+  password
+ });
+
+ if(loginError){
+
+  error.textContent =
+  "ایمیل یا رمز عبور اشتباه است.";
+
+  return;
+ }
+
+ const {data:admin,error:adminError} =
+ await db
+ .from("admin_users")
+ .select("user_id")
+ .eq("user_id",data.user.id)
+ .maybeSingle();
+
+ if(adminError || !admin){
+
+  await db.auth.signOut();
+
+  error.textContent =
+  "این حساب دسترسی مدیر ندارد.";
+
+  return;
+ }
+
+ showAdmin();
+
+}
+
+
+/* =========================================
+   SESSION
+========================================= */
+
+async function checkSession(){
+
+ const {data} =
+ await db.auth.getSession();
+
+ if(!data.session){
+
+  showLogin();
+
+  return;
+ }
+
+ const {data:admin} =
+ await db
+ .from("admin_users")
+ .select("user_id")
+ .eq("user_id",data.session.user.id)
+ .maybeSingle();
+
+ if(admin){
+
+  showAdmin();
+
+ }else{
+
+  await db.auth.signOut();
+
+  showLogin();
+
+ }
+
+}
+
+
+/* =========================================
+   UI
+========================================= */
+
+function showLogin(){
+
+ document
+ .getElementById("loginPage")
+ .classList.remove("hidden");
+
+ document
+ .getElementById("adminPage")
+ .classList.add("hidden");
+
+}
+
+
+function showAdmin(){
+
+ document
+ .getElementById("loginPage")
+ .classList.add("hidden");
+
+ document
+ .getElementById("adminPage")
+ .classList.remove("hidden");
+
+ loadProblems();
+
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+async function logout(){
+
+ await db.auth.signOut();
+
+ showLogin();
+
+}
+
+
+/* =========================================
+   LOAD
+========================================= */
+
+async function loadProblems(){
+
+ const {data,error} =
+ await db
+ .from("problems")
+ .select("*")
+ .order("created_at",{ascending:false});
+
+ if(error){
+
+  alert("خطا در دریافت گزارش‌ها: "+error.message);
+
+  return;
+ }
+
+ problems =
+ data || [];
+
+ updateStats();
+
+ renderProblems();
+
+}
+
+
+/* =========================================
+   STATS
+========================================= */
+
+function updateStats(){
+
+ document.getElementById("totalProblems")
+ .textContent =
+ problems.length.toLocaleString("fa-IR");
+
+ let views=0;
+ let likes=0;
+ let supports=0;
+
+ problems.forEach(p=>{
+
+  views += Number(p.views || 0);
+
+  likes += Number(p.likes || 0);
+
+  supports += Number(p.supports || 0);
+
+ });
+
+ document.getElementById("totalViews")
+ .textContent =
+ views.toLocaleString("fa-IR");
+
+ document.getElementById("totalLikes")
+ .textContent =
+ likes.toLocaleString("fa-IR");
+
+ document.getElementById("totalSupports")
+ .textContent =
+ supports.toLocaleString("fa-IR");
+
+}
+
+
+/* =========================================
+   RENDER
+========================================= */
+
+function renderProblems(){
+
+ const box =
+ document.getElementById("problems");
+
+ const search =
+ document.getElementById("search")
+ .value
+ .trim()
+ .toLowerCase();
+
+ const filtered =
+ problems.filter(p=>{
+
+  if(!search) return true;
+
+  return (
+   (p.title || "").toLowerCase().includes(search) ||
+   (p.description || "").toLowerCase().includes(search)
+  );
+
+ });
+
+ if(filtered.length===0){
+
+  box.innerHTML =
+  `<div class="empty">
+   گزارشی پیدا نشد.
+  </div>`;
+
+  return;
+ }
+
+ box.innerHTML =
+ filtered.map(p=>{
+
+  const date =
+  p.created_at
+  ? new Date(p.created_at)
+    .toLocaleString("fa-IR")
+  : "";
+
+  const image =
+  p.image_url
+  ? `<img src="${escapeHtml(p.image_url)}" alt="">`
+  : "";
+
+  return `
+
+  <article class="problem">
+
+   <div class="problem-top">
+
+    <div>
+
+     <div class="problem-title">
+      ${escapeHtml(p.title)}
+     </div>
+
+     <div class="date">
+      ${date}
+     </div>
+
+    </div>
+
+   </div>
+
+   <div class="desc">
+    ${escapeHtml(p.description)}
+   </div>
+
+   ${image}
+
+   <div class="stats-row">
+
+    <span>❤️ ${Number(p.likes||0)}</span>
+
+    <span>🤝 ${Number(p.supports||0)}</span>
+
+    <span>👁️ ${Number(p.views||0)}</span>
+
+   </div>
+
+   <div class="actions">
+
+    <button
+     class="btn gray"
+     onclick="editProblem('${p.id}')"
+    >
+     ✏️ ویرایش
+    </button>
+
+    <button
+     class="btn danger"
+     onclick="deleteProblem('${p.id}')"
+    >
+     🗑️ حذف
+    </button>
+
+   </div>
+
+  </article>
+
+  `;
+
+ }).join("");
+
+}
+
+
+/* =========================================
+   DELETE
+========================================= */
+
+async function deleteProblem(id){
+
+ const problem =
+ problems.find(p=>p.id===id);
+
+ if(!problem) return;
+
+ const ok =
+ confirm(
+  "آیا مطمئن هستید که می‌خواهید این گزارش حذف شود؟\n\n"+
+  problem.title
+ );
+
+ if(!ok) return;
+
+ const {error} =
+ await db
+ .from("problems")
+ .delete()
+ .eq("id",id);
+
+ if(error){
+
+  alert(
+   "حذف انجام نشد:\n"+
+   error.message
+  );
+
+  return;
+ }
+
+ problems =
+ problems.filter(p=>p.id!==id);
+
+ updateStats();
+
+ renderProblems();
+
+}
+
+
+/* =========================================
+   EDIT
+========================================= */
+
+function editProblem(id){
+
+ const p =
+ problems.find(x=>x.id===id);
+
+ if(!p) return;
+
+ editingId=id;
+
+ document.getElementById("editTitle")
+ .value=p.title || "";
+
+ document.getElementById("editDescription")
+ .value=p.description || "";
+
+ document.getElementById("modal")
+ .classList.remove("hidden");
+
+}
+
+
+function closeModal(){
+
+ editingId=null;
+
+ document.getElementById("modal")
+ .classList.add("hidden");
+
+}
+
+
+async function saveEdit(){
+
+ if(!editingId) return;
+
+ const title =
+ document.getElementById("editTitle")
+ .value.trim();
+
+ const description =
+ document.getElementById("editDescription")
+ .value.trim();
+
+ if(!title || !description){
+
+  alert("عنوان و توضیحات را وارد کنید.");
+
+  return;
+ }
+
+ const {data,error} =
+ await db
+ .from("problems")
+ .update({
+  title,
+  description,
+  updated_at:new Date().toISOString()
+ })
+ .eq("id",editingId)
+ .select()
+ .single();
+
+ if(error){
+
+  alert(
+   "ویرایش انجام نشد:\n"+
+   error.message
+  );
+
+  return;
+ }
+
+ const index =
+ problems.findIndex(
+  p=>p.id===editingId
+ );
+
+ if(index!==-1){
+
+  problems[index]={
+   ...problems[index],
+   ...data
+  };
+
+ }
+
+ closeModal();
+
+ updateStats();
+
+ renderProblems();
+
+}
+
+
+/* =========================================
+   HTML ESCAPE
+========================================= */
+
+function escapeHtml(value){
+
+ return String(value ?? "")
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;")
+ .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
