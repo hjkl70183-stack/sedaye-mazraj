@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>صدای مزرج</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+background:#f3f6fa;
+font-family:Tahoma,Arial,sans-serif;
+color:#172033;
+padding-bottom:95px
+}
+
+header{
+background:linear-gradient(135deg,#1677d2,#00a8ff);
+color:white;
+padding:25px 18px 42px;
+border-radius:0 0 30px 30px;
+box-shadow:0 8px 25px #1677d233
+}
+
+.head{
+max-width:700px;
+margin:auto
+}
+
+.logo{
+font-size:27px;
+font-weight:bold
+}
+
+.sub{
+margin-top:8px;
+font-size:13px;
+line-height:1.9;
+opacity:.92
+}
+
+.container{
+max-width:700px;
+margin:-20px auto 0;
+padding:0 13px
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:9px;
+margin-bottom:14px
+}
+
+.stat{
+background:white;
+border-radius:18px;
+padding:14px 5px;
+text-align:center;
+box-shadow:0 5px 20px #0000000b
+}
+
+.stat b{
+display:block;
+font-size:20px;
+color:#1677d2;
+margin-bottom:4px
+}
+
+.stat span{
+font-size:11px;
+color:#7c8595
+}
+
+.panel{
+background:#fff;
+border-radius:18px;
+padding:13px;
+margin-bottom:14px;
+box-shadow:0 5px 20px #0000000b
+}
+
+.search{
+display:flex;
+gap:8px
+}
+
+.search input{
+flex:1;
+min-width:0;
+border:1px solid #e0e5ec;
+border-radius:13px;
+padding:12px;
+font-family:inherit;
+outline:none
+}
+
+.search select{
+border:1px solid #e0e5ec;
+border-radius:13px;
+padding:8px;
+background:#fff;
+font-family:inherit
+}
+
+.problem{
+background:#fff;
+border-radius:20px;
+padding:15px;
+margin-bottom:13px;
+box-shadow:0 5px 20px #0000000c
+}
+
+.problem h3{
+margin:0 0 8px;
+font-size:17px
+}
+
+.problem p{
+margin:0;
+font-size:13px;
+line-height:2;
+color:#626d7e;
+white-space:pre-wrap
+}
+
+.problem img{
+display:block;
+width:100%;
+max-height:310px;
+object-fit:cover;
+border-radius:14px;
+margin-top:12px
+}
+
+.meta{
+display:flex;
+justify-content:space-between;
+margin:12px 0;
+font-size:10px;
+color:#929aaa
+}
+
+.actions{
+display:flex;
+gap:7px
+}
+
+.actions button{
+flex:1;
+border:0;
+border-radius:12px;
+padding:11px 5px;
+font-family:inherit;
+font-size:12px;
+cursor:pointer;
+background:#f1f4f8;
+color:#414b5b
+}
+
+.actions .liked{
+background:#ffe8ed;
+color:#e33859
+}
+
+.actions .supported{
+background:#159957;
+color:#fff
+}
+
+.add{
+position:fixed;
+z-index:20;
+bottom:18px;
+left:50%;
+transform:translateX(-50%);
+width:calc(100% - 30px);
+max-width:670px;
+border:0;
+border-radius:17px;
+padding:16px;
+font-family:inherit;
+font-size:15px;
+font-weight:bold;
+color:white;
+background:linear-gradient(135deg,#1677d2,#00a8ff);
+box-shadow:0 8px 25px #1677d255;
+cursor:pointer
+}
+
+.modal{
+display:none;
+position:fixed;
+z-index:30;
+inset:0;
+background:#0008;
+align-items:flex-end;
+justify-content:center
+}
+
+.modal.show{
+display:flex
+}
+
+.modalbox{
+width:100%;
+max-width:700px;
+max-height:92vh;
+overflow:auto;
+background:white;
+border-radius:25px 25px 0 0;
+padding:20px
+}
+
+.modalbox h2{
+margin:0 0 15px
+}
+
+.field{
+margin:13px 0
+}
+
+.field label{
+display:block;
+font-size:12px;
+color:#697486;
+margin-bottom:6px
+}
+
+.field input,
+.field textarea{
+width:100%;
+border:1px solid #dfe4eb;
+border-radius:13px;
+padding:13px;
+font-family:inherit;
+outline:none
+}
+
+.field textarea{
+height:120px;
+resize:none
+}
+
+.preview{
+display:none;
+width:100%;
+max-height:200px;
+object-fit:cover;
+border-radius:13px;
+margin-top:8px
+}
+
+.formbuttons{
+display:flex;
+gap:8px;
+margin-top:15px
+}
+
+.formbuttons button{
+flex:1;
+border:0;
+padding:14px;
+border-radius:13px;
+font-family:inherit;
+cursor:pointer
+}
+
+.cancel{
+background:#edf0f4
+}
+
+.send{
+background:#1677d2;
+color:white
+}
+
+.empty{
+background:white;
+padding:35px 15px;
+border-radius:18px;
+text-align:center;
+color:#8993a4;
+line-height:2
+}
+
+.loading{
+text-align:center;
+padding:35px;
+color:#1677d2
+}
+
+.toast{
+position:fixed;
+z-index:100;
+bottom:85px;
+left:50%;
+transform:translateX(-50%);
+background:#172033;
+color:white;
+padding:12px 18px;
+border-radius:13px;
+font-size:12px;
+display:none;
+max-width:90%;
+text-align:center
+}
+
+.toast.show{
+display:block
+}
+
+@media(max-width:430px){
+.search{
+flex-direction:column
+}
+
+.search select{
+width:100%
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="head">
+<div class="logo">📢 صدای مزرج</div>
+<div class="sub">
+مشکلات مزرج را گزارش کن، حمایت کن و کمک کن مشکلات مهم‌تر دیده شوند.
+</div>
+</div>
+</header>
+
+<main class="container">
+
+<div class="stats">
+
+<div class="stat">
+<b id="total">۰</b>
+<span>گزارش‌ها</span>
+</div>
+
+<div class="stat">
+<b id="likes">۰</b>
+<span>لایک‌ها</span>
+</div>
+
+<div class="stat">
+<b id="supports">۰</b>
+<span>حمایت‌ها</span>
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="search">
+
+<input
+id="search"
+type="search"
+placeholder="🔎 جستجوی مشکل..."
+>
+
+<select id="sort">
+<option value="support">بیشترین حمایت</option>
+<option value="new">جدیدترین</option>
+<option value="like">بیشترین لایک</option>
+</select>
+
+</div>
+
+</div>
+
+<div id="list">
+<div class="loading">
+در حال دریافت گزارش‌ها...
+</div>
+</div>
+
+</main>
+
+<button class="add" onclick="openModal()">
+＋ ثبت مشکل جدید
+</button>
+
+
+<div class="modal" id="modal">
+
+<div class="modalbox">
+
+<h2>📝 ثبت مشکل جدید</h2>
+
+<div class="field">
+
+<label>عنوان مشکل</label>
+
+<input
+id="title"
+maxlength="100"
+placeholder="مثلاً خرابی آسفالت خیابان"
+>
+
+</div>
+
+
+<div class="field">
+
+<label>توضیحات مشکل</label>
+
+<textarea
+id="description"
+maxlength="1500"
+placeholder="مشکل را کامل توضیح دهید..."
+></textarea>
+
+</div>
+
+
+<div class="field">
+
+<label>عکس مشکل — اختیاری</label>
+
+<input
+id="image"
+type="file"
+accept="image/*"
+>
+
+<img
+id="preview"
+class="preview"
+>
+
+</div>
+
+
+<div class="formbuttons">
+
+<button
+class="cancel"
+onclick="closeModal()"
+>
+انصراف
+</button>
+
+<button
+class="send"
+id="sendBtn"
+onclick="submitProblem()"
+>
+ثبت گزارش
+</button>
+
+</div>
+
+</div>
+</div>
+
+
+<div
+id="toast"
+class="toast"
+></div>
+
+
+<script>
+
+/* =====================================
+   SUPABASE
+===================================== */
+
+const SUPABASE_URL =
+"https://tsiexzpieogyezzpxtkw.supabase.co";
+
+const SUPABASE_ANON_KEY =
+"sb_publishable_ovUuFQIQcmFt7fxySl5iHA_mvCnm735";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_ANON_KEY
+);
+
+
+/* =====================================
+   اطلاعات محلی
+===================================== */
+
+let problems = [];
+
+let myLikes =
+JSON.parse(
+localStorage.getItem("mazraj_likes") || "[]"
+);
+
+let mySupports =
+JSON.parse(
+localStorage.getItem("mazraj_supports") || "[]"
+);
+
+
+/* =====================================
+   ابزارها
+===================================== */
+
+function fa(number){
+
+return Number(number || 0)
+.toLocaleString("fa-IR");
+
+}
+
+
+function escapeHTML(value){
+
+return String(value || "")
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+
+function toast(message){
+
+const box =
+document.getElementById("toast");
+
+box.textContent = message;
+
+box.classList.add("show");
+
+clearTimeout(window.toastTimer);
+
+window.toastTimer =
+setTimeout(function(){
+
+box.classList.remove("show");
+
+},3000);
+
+}
+
+
+/* =====================================
+   دریافت گزارش‌ها
+===================================== */
+
+async function loadProblems(){
+
+document.getElementById("list").innerHTML =
+`
+<div class="loading">
+در حال دریافت گزارش‌ها...
+</div>
+`;
+
+const result =
+await db
+.from("problems")
+.select("*")
+.order("created_at",{ascending:false});
+
+
+if(result.error){
+
+console.error(result.error);
+
+document.getElementById("list").innerHTML =
+`
+<div class="empty">
+
+❌ خطا در اتصال به پایگاه داده
+
+<br><br>
+
+${escapeHTML(result.error.message)}
+
+</div>
+`;
+
+return;
+
+}
+
+
+problems =
+result.data || [];
+
+render();
+
+}
+
+
+/* =====================================
+   نمایش
+===================================== */
+
+function render(){
+
+const search =
+document
+.getElementById("search")
+.value
+.trim()
+.toLowerCase();
+
+
+const sort =
+document
+.getElementById("sort")
+.value;
+
+
+let list =
+problems.filter(function(problem){
+
+const title =
+(problem.title || "")
+.toLowerCase();
+
+const description =
+(problem.description || "")
+.toLowerCase();
+
+return title.includes(search) ||
+description.includes(search);
+
+});
+
+
+if(sort === "support"){
+
+list.sort(function(a,b){
+
+return Number(b.supports || 0) -
+Number(a.supports || 0);
+
+});
+
+}
+
+
+if(sort === "like"){
+
+list.sort(function(a,b){
+
+return Number(b.likes || 0) -
+Number(a.likes || 0);
+
+});
+
+}
+
+
+if(sort === "new"){
+
+list.sort(function(a,b){
+
+return new Date(b.created_at) -
+new Date(a.created_at);
+
+});
+
+}
+
+
+const totalLikes =
+problems.reduce(function(sum,p){
+
+return sum + Number(p.likes || 0);
+
+},0);
+
+
+const totalSupports =
+problems.reduce(function(sum,p){
+
+return sum + Number(p.supports || 0);
+
+},0);
+
+
+document.getElementById("total")
+.textContent =
+fa(problems.length);
+
+
+document.getElementById("likes")
+.textContent =
+fa(totalLikes);
+
+
+document.getElementById("supports")
+.textContent =
+fa(totalSupports);
+
+
+if(!list.length){
+
+document.getElementById("list").innerHTML =
+`
+<div class="empty">
+🔍 گزارشی پیدا نشد.
+</div>
+`;
+
+return;
+
+}
+
+
+document.getElementById("list").innerHTML =
+list.map(createCard).join("");
+
+}
+
+
+/* =====================================
+   کارت مشکل
+===================================== */
+
+function createCard(problem){
+
+const liked =
+myLikes.includes(problem.id);
+
+const supported =
+mySupports.includes(problem.id);
+
+
+const date =
+problem.created_at
+?
+new Date(problem.created_at)
+.toLocaleDateString("fa-IR")
+:
+"";
+
+
+return `
+<article class="problem">
+
+<h3>
+${escapeHTML(problem.title)}
+</h3>
+
+<p>
+${escapeHTML(problem.description)}
+</p>
+
+${
+problem.image_url
+?
+`
+<img
+src="${escapeHTML(problem.image_url)}"
+alt="تصویر مشکل"
+loading="lazy"
+>
+`
+:
+""
+}
+
+<div class="meta">
+
+<span>
+📅 ${date}
+</span>
+
+<span>
+📢 گزارش مردمی
+</span>
+
+</div>
+
+
+<div class="actions">
+
+<button
+class="${liked ? "liked" : ""}"
+onclick="likeProblem('${problem.id}')"
+>
+${liked ? "❤️" : "♡"}
+${fa(problem.likes)}
+لایک
+</button>
+
+
+<button
+class="${supported ? "supported" : ""}"
+onclick="supportProblem('${problem.id}')"
+>
+🤝
+${fa(problem.supports)}
+حمایت
+</button>
+
+</div>
+
+</article>
+`;
+
+}
+
+
+/* =====================================
+   لایک
+===================================== */
+
+async function likeProblem(id){
+
+if(myLikes.includes(id)){
+
+toast("❤️ قبلاً این گزارش را لایک کرده‌ای.");
+
+return;
+
+}
+
+
+const problem =
+problems.find(function(item){
+
+return item.id === id;
+
+});
+
+
+if(!problem)return;
+
+
+const newLikes =
+Number(problem.likes || 0) + 1;
+
+
+const result =
+await db
+.from("problems")
+.update({
+likes:newLikes
+})
+.eq("id",id);
+
+
+if(result.error){
+
+console.error(result.error);
+
+toast("❌ ثبت لایک انجام نشد.");
+
+return;
+
+}
+
+
+problem.likes =
+newLikes;
+
+
+myLikes.push(id);
+
+
+localStorage.setItem(
+"mazraj_likes",
+JSON.stringify(myLikes)
+);
+
+
+render();
+
+}
+
+
+/* =====================================
+   حمایت
+===================================== */
+
+async function supportProblem(id){
+
+if(mySupports.includes(id)){
+
+toast("🤝 قبلاً از این مشکل حمایت کرده‌ای.");
+
+return;
+
+}
+
+
+const problem =
+problems.find(function(item){
+
+return item.id === id;
+
+});
+
+
+if(!problem)return;
+
+
+const newSupports =
+Number(problem.supports || 0) + 1;
+
+
+const result =
+await db
+.from("problems")
+.update({
+supports:newSupports
+})
+.eq("id",id);
+
+
+if(result.error){
+
+console.error(result.error);
+
+toast("❌ ثبت حمایت انجام نشد.");
+
+return;
+
+}
+
+
+problem.supports =
+newSupports;
+
+
+mySupports.push(id);
+
+
+localStorage.setItem(
+"mazraj_supports",
+JSON.stringify(mySupports)
+);
+
+
+render();
+
+toast("🤝 حمایت شما ثبت شد.");
+
+}
+
+
+/* =====================================
+   فرم
+===================================== */
+
+function openModal(){
+
+document
+.getElementById("modal")
+.classList.add("show");
+
+}
+
+
+function closeModal(){
+
+document
+.getElementById("modal")
+.classList.remove("show");
+
+
+document.getElementById("title")
+.value = "";
+
+
+document.getElementById("description")
+.value = "";
+
+
+document.getElementById("image")
+.value = "";
+
+
+document.getElementById("preview")
+.style.display = "none";
+
+}
+
+
+/* =====================================
+   پیش‌نمایش عکس
+===================================== */
+
+document
+.getElementById("image")
+.addEventListener("change",function(){
+
+const file =
+this.files[0];
+
+if(!file)return;
+
+
+if(file.size > 5 * 1024 * 1024){
+
+toast("❌ حجم عکس باید کمتر از ۵ مگابایت باشد.");
+
+this.value = "";
+
+return;
+
+}
+
+
+const reader =
+new FileReader();
+
+
+reader.onload =
+function(event){
+
+const preview =
+document.getElementById("preview");
+
+preview.src =
+event.target.result;
+
+preview.style.display =
+"block";
+
+};
+
+
+reader.readAsDataURL(file);
+
+});
+
+
+/* =====================================
+   ثبت گزارش
+===================================== */
+
+async function submitProblem(){
+
+const title =
+document
+.getElementById("title")
+.value
+.trim();
+
+
+const description =
+document
+.getElementById("description")
+.value
+.trim();
+
+
+const file =
+document
+.getElementById("image")
+.files[0];
+
+
+if(!title){
+
+toast("⚠️ عنوان مشکل را وارد کنید.");
+
+return;
+
+}
+
+
+if(!description){
+
+toast("⚠️ توضیحات مشکل را وارد کنید.");
+
+return;
+
+}
+
+
+const button =
+document.getElementById("sendBtn");
+
+
+button.disabled = true;
+
+button.textContent =
+"در حال ثبت...";
+
+
+try{
+
+let imageUrl = null;
+
+
+/* =====================================
+   عکس اختیاری
+===================================== */
+
+if(file){
+
+const extension =
+file.name
+.split(".")
+.pop()
+.toLowerCase();
+
+
+const allowed =
+["jpg","jpeg","png","webp","gif"];
+
+
+if(!allowed.includes(extension)){
+
+toast("⚠️ فرمت عکس پشتیبانی نمی‌شود.");
+
+}else{
+
+const fileName =
+Date.now()
++
+"-"
++
+Math.random()
+.toString(36)
+.substring(2)
++
+"."
++
+extension;
+
+
+const path =
+"problems/"
++
+fileName;
+
+
+const upload =
+await db.storage
+.from("problem-images")
+.upload(
+path,
+file,
+{
+upsert:false,
+contentType:file.type
+}
+);
+
+
+if(!upload.error){
+
+const publicUrl =
+db.storage
+.from("problem-images")
+.getPublicUrl(path);
+
+
+imageUrl =
+publicUrl.data.publicUrl;
+
+}else{
+
+console.warn(
+"Image upload error:",
+upload.error
+);
+
+/*
+عکس اختیاری است.
+اگر Storage خراب باشد،
+ثبت گزارش متوقف نمی‌شود.
+*/
+
+imageUrl = null;
+
+}
+
+}
+
+}
+
+
+/* =====================================
+   ثبت در جدول
+===================================== */
+
+const insert =
+await db
+.from("problems")
+.insert({
+
+title:title,
+
+description:description,
+
+image_url:imageUrl,
+
+likes:0,
+
+supports:0
+
+});
+
+
+if(insert.error){
+
+console.error(insert.error);
+
+throw new Error(
+insert.error.message
+);
+
+}
+
+
+closeModal();
+
+
+toast(
+"✅ گزارش با موفقیت ثبت شد."
+);
+
+
+await loadProblems();
+
+
+}catch(error){
+
+console.error(error);
+
+
+toast(
+"❌ "
++
+(error.message ||
+"ثبت گزارش انجام نشد")
+);
+
+
+}finally{
+
+button.disabled = false;
+
+button.textContent =
+"ثبت گزارش";
+
+}
+
+}
+
+
+/* =====================================
+   جستجو
+===================================== */
+
+document
+.getElementById("search")
+.addEventListener(
+"input",
+render
+);
+
+
+/* =====================================
+   مرتب‌سازی
+===================================== */
+
+document
+.getElementById("sort")
+.addEventListener(
+"change",
+render
+);
+
+
+/* =====================================
+   شروع
+===================================== */
+
+loadProblems();
+
+</script>
+
+</body>
+</html>
